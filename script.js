@@ -316,12 +316,13 @@ function createIssueElement(issue) {
                 <h3 style="margin: 0; color: #333; text-transform: capitalize;">${issue.type.replace('-', ' ')}</h3>
             </div>
             <span style="
-                background-color: #e3f2fd;
-                color: #1976d2;
+                background-color: ${issue.status === 'solved' ? '#e8f5e8' : '#fff3e0'};
+                color: ${issue.status === 'solved' ? '#388e3c' : '#f57c00'};
                 padding: 4px 8px;
                 border-radius: 12px;
                 font-size: 0.8rem;
                 font-weight: bold;
+                text-transform: uppercase;
             ">${issue.status}</span>
         </div>
         

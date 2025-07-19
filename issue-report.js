@@ -207,7 +207,7 @@ async function submitIssue(event) {
             },
             image: imageData,
             timestamp: new Date().toISOString(),
-            status: 'reported',
+            status: 'pending',
             reporter: sessionStorage.getItem('loggedInUser') || 'anonymous'
         };
         
