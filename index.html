@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kigali Traffic Navigation System</title>
-    <link rel="icon" href="images/kigali traffic.webp" />
-    
     <style>
         * {
             margin: 0;
@@ -138,7 +136,6 @@
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             padding: 20px;
-            cursor: pointer;
         }
 
         .route-option {
@@ -178,7 +175,6 @@
             width: 35px;
             height: 35px;
             background: #f8f9fa;
-            cursor: pointer;
         }
 
         .recommended {
@@ -310,14 +306,30 @@
     </style>
 </head>
 <body>
-    <script>
-        if (!sessionStorage.getItem('loggedInUser')) {
-            window.location.href = 'auth.html'; 
-        }
-    </script>
     <header>
-        <h1>Kigali Traffic Navigation System</h1>
-        <p>Find the best route with real-time traffic updates</p>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1>Kigali Traffic Navigation System</h1>
+                <p>Find the best route with real-time traffic updates</p>
+            </div>
+            <nav>
+                <a href="report-issue.html" style="
+                    color: white;
+                    text-decoration: none;
+                    padding: 10px 20px;
+                    background: rgba(255,255,255,0.2);
+                    border-radius: 25px;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.3s ease;
+                    border: 1px solid rgba(255,255,255,0.3);
+                ">
+                    <span style="font-size: 1.2em;">⚠️</span>
+                    Report an Issue
+                </a>
+            </nav>
+        </div>
     </header>
 
     <div class="container">
@@ -362,20 +374,11 @@
     <footer>
         <p>© 2024 davidbirenzi | All rights reserved</p>
     </footer>
+
+    <!-- Replace YOUR_API_KEY with your actual Google Maps API key -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD3QYtOU1P5Dkf4nNFfREDfTB-z99XWijQ&libraries=places&callback=initMap" async defer></script>
+    
     <!-- Include the JavaScript file we created earlier -->
     <script src="script.js"></script>
-
-    <!-- spinning the screen for 3 seconds -->
-    <script>
-        // Simulate loading and hide the loading screen
-    window.onload = () => {
-        const loadingScreen = document.getElementById('loading-screen');
-
-        // Simulate a delay for the loading screen
-        setTimeout(() => {
-            loadingScreen.classList.add('hidden'); // Add the fade-out animation
-        }, 3000); // Adjust duration as needed (in milliseconds)
-    };
-    </script>
 </body>
 </html>

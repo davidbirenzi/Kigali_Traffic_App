@@ -2,7 +2,6 @@ let map;
 let directionsService;
 let directionsRenderer;
 let placesService;
-const googleMapsAPI = require('google-maps-api');
 
 function initMap() {
     // Initialize the map centered on Kigali
@@ -21,34 +20,6 @@ function initMap() {
     initializeAutocomplete('start');
     initializeAutocomplete('end');
 }
-
-const apiKey = process.env.API_KEY;
-const googleMapsClient = googleMapsAPI.createClient({
-  key: apiKey,
-  Promise: Promise,
-});
-
-googleMapsClient.geocode({
-  address: '1600 Amphitheatre Parkway, Mountain View, CA',
-})
-.then((response) => {
-  console.log(response.json.results);
-})
-.catch((err) => {
-  console.error(err);
-});
-
-app.get('/api/maps', (req, res) => {
-  googleMapsClient.geocode({
-    address: '1600 Amphitheatre Parkway, Mountain View, CA',
-  })
-  .then((response) => {
-    res.json(response.json.results);
-  })
-  .catch((err) => {
-    res.status(500).json({ error: 'Failed to geocode address' });
-  });
-});
 
 function initializeAutocomplete(inputId) {
     const input = document.getElementById(inputId);

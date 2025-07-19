@@ -9,6 +9,55 @@ function hashPassword(password) {
     return hash.toString();
 }
 
+// Custom popup function
+function showPopup(title, message, type = 'info') {
+    const popupOverlay = document.getElementById('popup-overlay');
+    const popupIcon = document.getElementById('popup-icon');
+    const popupTitle = document.getElementById('popup-title');
+    const popupMessage = document.getElementById('popup-message');
+    const popupButton = document.getElementById('popup-button');
+
+    // Set icon based on type
+    popupIcon.className = 'popup-icon';
+    if (type === 'success') {
+        popupIcon.textContent = '✓';
+        popupIcon.classList.add('success');
+        popupButton.className = 'popup-button success';
+    } else if (type === 'error') {
+        popupIcon.textContent = '✕';
+        popupIcon.classList.add('error');
+        popupButton.className = 'popup-button error';
+    } else if (type === 'warning') {
+        popupIcon.textContent = '⚠';
+        popupIcon.classList.add('warning');
+        popupButton.className = 'popup-button';
+    } else {
+        popupIcon.textContent = 'ℹ';
+        popupButton.className = 'popup-button';
+    }
+
+    popupTitle.textContent = title;
+    popupMessage.textContent = message;
+
+    // Show popup
+    popupOverlay.classList.add('show');
+
+    // Handle button click
+    const closePopup = () => {
+        popupOverlay.classList.remove('show');
+        popupButton.removeEventListener('click', closePopup);
+    };
+
+    popupButton.addEventListener('click', closePopup);
+
+    // Close on overlay click
+    popupOverlay.addEventListener('click', (e) => {
+        if (e.target === popupOverlay) {
+            closePopup();
+        }
+    });
+}
+
 // Get form elements
 const loginForm = document.getElementById('login-form');
 const signupForm = document.getElementById('signup-form');
@@ -43,17 +92,17 @@ signupBtn.addEventListener('click', () => {
 
     // Basic validations
     if (!email) {
-        alert('Please enter an email address');
+        showPopup('Error', 'Please enter an email address', 'error');
         return;
     }
 
     if (password.length < 6) {
-        alert('Password must be at least 6 characters long');
+        showPopup('Error', 'Password must be at least 6 characters long', 'error');
         return;
     }
 
     if (password !== confirmPassword) {
-        alert('Passwords do not match');
+        showPopup('Error', 'Passwords do not match', 'error');
         return;
     }
 
@@ -61,7 +110,7 @@ signupBtn.addEventListener('click', () => {
     const users = JSON.parse(localStorage.getItem('users') || '{}');
     
     if (users[email]) {
-        alert('Email already exists. Please log in.');
+        showPopup('Account Exists', 'Email already exists. Please log in.', 'warning');
         return;
     }
 
@@ -70,7 +119,7 @@ signupBtn.addEventListener('click', () => {
     users[email] = hashedPassword;
     localStorage.setItem('users', JSON.stringify(users));
 
-    alert('Account created successfully!');
+    showPopup('Success', 'Account created successfully!', 'success');
     
     // Switch to login form
     signupForm.classList.add('hidden');
@@ -84,7 +133,7 @@ loginBtn.addEventListener('click', () => {
 
     // Validate inputs
     if (!email || !password) {
-        alert('Please enter both email and password');
+        showPopup('Error', 'Please enter both email and password', 'error');
         return;
     }
 
@@ -95,11 +144,13 @@ loginBtn.addEventListener('click', () => {
     if (users[email] && users[email] === hashedInputPassword) {
         // Successful login
         sessionStorage.setItem('loggedInUser', email);
-        alert('Login successful!');
+        showPopup('Welcome Back!', 'Login successful!', 'success');
         // Redirect to main page or dashboard
-        window.location.href = 'index.html'; // Change to your main page
+        setTimeout(() => {
+            window.location.href = 'index.html'; // Change to your main page
+        }, 1500);
     } else {
-        alert('Invalid email or password');
+        showPopup('Login Failed', 'Invalid email or password', 'error');
     }
 });
 
@@ -110,4 +161,36 @@ document.addEventListener('DOMContentLoaded', () => {
         // If already logged in, redirect to dashboard
         window.location.href = 'index.html'; // Change to your main page
     }
+
+    // Add Enter key functionality for login form
+    loginEmailInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            loginBtn.click();
+        }
+    });
+
+    loginPasswordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            loginBtn.click();
+        }
+    });
+
+    // Add Enter key functionality for signup form
+    signupEmailInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            signupBtn.click();
+        }
+    });
+
+    signupPasswordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            signupBtn.click();
+        }
+    });
+
+    confirmPasswordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            signupBtn.click();
+        }
+    });
 });
