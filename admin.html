@@ -9,26 +9,32 @@
 <body>
     <div class="container">
         <header>
-            <div class="header-content">
-                <h1>Admin Dashboard</h1>
-                <div class="admin-info">
-                    <span id="admin-name">Admin</span>
-                    <button id="logout-btn" onclick="logout()">Logout</button>
+            <div class="header-content" style="display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap;">
+                <div class="logo-title" style="display: flex; align-items: center; gap: 16px;">
+                    <img src="https://img.icons8.com/ios-filled/50/ffffff/traffic-jam.png" alt="Logo" class="admin-logo" style="width:48px;height:48px;box-shadow:0 2px 8px rgba(33,150,243,0.12);background:rgba(255,255,255,0.18);border-radius:50%;padding:8px;">
+                    <h1 style="font-size:2rem;font-weight:800;letter-spacing:1px;margin:0;line-height:1;">Admin Dashboard</h1>
+                </div>
+                <div class="admin-info" style="display: flex; align-items: center; gap: 18px; background: rgba(255,255,255,0.13); padding: 10px 24px; border-radius: 24px; font-size: 1.08rem; box-shadow: 0 2px 8px rgba(33,150,243,0.08);">
+                    <span id="admin-name" style="font-weight:700;display:flex;align-items:center;gap:6px;">👤 Admin</span>
+                    <button id="logout-btn" onclick="logout()" style="background: linear-gradient(90deg, #ff5252 0%, #ff9800 100%); color: white; border: none; padding: 10px 28px; border-radius: 22px; cursor: pointer; font-weight: 700; font-size: 1rem; transition: background 0.3s, box-shadow 0.3s; box-shadow: 0 2px 8px rgba(255,152,0,0.08);">Logout</button>
                 </div>
             </div>
-            <a href="index.html" class="back-btn">← Back to Home</a>
+            
         </header>
 
         <div class="stats-section">
             <div class="stat-card">
+                <div class="stat-icon stat-total">📋</div>
                 <div class="stat-number" id="total-issues">0</div>
                 <div class="stat-label">Total Issues</div>
             </div>
             <div class="stat-card pending">
+                <div class="stat-icon stat-pending">⏳</div>
                 <div class="stat-number" id="pending-issues">0</div>
                 <div class="stat-label">Pending</div>
             </div>
             <div class="stat-card solved">
+                <div class="stat-icon stat-solved">✅</div>
                 <div class="stat-number" id="solved-issues">0</div>
                 <div class="stat-label">Solved</div>
             </div>
@@ -58,7 +64,7 @@
                 </select>
             </div>
             <div class="search-group">
-                <input type="text" id="search-input" placeholder="Search issues..." onkeyup="filterIssues()">
+                <input type="text" id="search-input" placeholder="🔍 Search issues..." onkeyup="filterIssues()">
             </div>
         </div>
 

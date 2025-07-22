@@ -137,18 +137,27 @@ loginBtn.addEventListener('click', () => {
         return;
     }
 
-    // Check credentials
+    // Admin hardcoded credentials
+    if (email === 'admin@kigali.com' && password === 'admin123') {
+        sessionStorage.setItem('loggedInUser', JSON.stringify({ email, role: 'admin' }));
+        showPopup('Welcome Admin!', 'Login successful! Redirecting to admin dashboard...', 'success');
+        setTimeout(() => {
+            window.location.href = 'admin.html';
+        }, 1200);
+        return;
+    }
+
+    // Check credentials for normal users
     const users = JSON.parse(localStorage.getItem('users') || '{}');
     const hashedInputPassword = hashPassword(password);
 
     if (users[email] && users[email] === hashedInputPassword) {
         // Successful login
-        sessionStorage.setItem('loggedInUser', email);
+        sessionStorage.setItem('loggedInUser', JSON.stringify({ email, role: 'user' }));
         showPopup('Welcome Back!', 'Login successful!', 'success');
-        // Redirect to main page or dashboard
         setTimeout(() => {
-            window.location.href = 'index.html'; // Change to your main page
-        }, 1500);
+            window.location.href = 'index.html';
+        }, 1200);
     } else {
         showPopup('Login Failed', 'Invalid email or password', 'error');
     }
@@ -158,8 +167,15 @@ loginBtn.addEventListener('click', () => {
 document.addEventListener('DOMContentLoaded', () => {
     const loggedInUser = sessionStorage.getItem('loggedInUser');
     if (loggedInUser) {
-        // If already logged in, redirect to dashboard
-        window.location.href = 'index.html'; // Change to your main page
+        try {
+            const user = JSON.parse(loggedInUser);
+            if (user.role === 'admin') {
+                window.location.href = 'admin.html';
+                return;
+            }
+        } catch (e) {}
+        window.location.href = 'index.html';
+        return;
     }
 
     // Add Enter key functionality for login form

@@ -56,6 +56,7 @@ function getDirections() {
 
         if (status === 'OK') {
             directionsRenderer.setDirections(response);
+            currentRoute = response; // Store the route data for navigation
             displayRouteOptions(response.routes);
         } else {
             showError('Could not calculate directions. Please try again.');
@@ -183,6 +184,11 @@ function displayRouteOptions(routes) {
                     </div>
                 ` : ''}
             </div>
+            <div class="route-actions">
+                <button class="btn-navigate" onclick="startNavigation(${index})">
+                    🚗 Start Navigation
+                </button>
+            </div>
         `;
 
         routeElement.addEventListener('click', () => {
@@ -216,10 +222,693 @@ function extractRoadNumbers(route) {
     return roadNumbers;
 }
 
+// Navigation variables
+let currentRoute = null;
+let navigationMode = false;
+let userLocation = null;
+let locationWatcher = null;
+
 function showError(message) {
     const errorDiv = document.getElementById('error');
     errorDiv.textContent = message;
     errorDiv.style.display = 'block';
+}
+
+// Start navigation mode
+function startNavigation(routeIndex) {
+    if (!currentRoute) {
+        showError('No route selected. Please get directions first.');
+        return;
+    }
+    
+    const route = currentRoute.routes[routeIndex];
+    if (!route) {
+        showError('Route not found.');
+        return;
+    }
+    
+    // Store route data
+    currentRoute.selectedRouteIndex = routeIndex;
+    currentRoute.selectedRoute = route;
+    
+    // Enter full-screen navigation mode
+    enterNavigationMode();
+    
+    // Start location tracking
+    startLocationTracking();
+}
+
+// Enter full-screen navigation mode
+function enterNavigationMode() {
+    navigationMode = true;
+    
+    // Hide main content
+    document.getElementById('controls').style.display = 'none';
+    document.getElementById('routeInfo').style.display = 'none';
+    document.getElementById('reported-issues-section').style.display = 'none';
+    document.querySelector('footer').style.display = 'none';
+    
+    // Show navigation header
+    showNavigationHeader();
+    
+    // Show navigation footer
+    showNavigationFooter();
+    
+    // Make map full screen
+    const mapContainer = document.getElementById('map-container');
+    mapContainer.style.position = 'fixed';
+    mapContainer.style.top = '60px';
+    mapContainer.style.left = '0';
+    mapContainer.style.right = '0';
+    mapContainer.style.bottom = '120px';
+    mapContainer.style.zIndex = '1000';
+    mapContainer.style.borderRadius = '0';
+    
+    // Trigger map resize
+    google.maps.event.trigger(map, 'resize');
+    
+    // Center map on the route
+    const bounds = new google.maps.LatLngBounds();
+    currentRoute.selectedRoute.overview_path.forEach(point => {
+        bounds.extend(point);
+    });
+    map.fitBounds(bounds);
+}
+
+// Show navigation header
+function showNavigationHeader() {
+    const header = document.querySelector('header');
+    header.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="
+                    background: rgba(255,255,255,0.2);
+                    padding: 8px 12px;
+                    border-radius: 20px;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                ">
+                    <span style="font-size: 1.2em;">🚗</span>
+                    <span style="font-weight: bold;">Navigation Active</span>
+                </div>
+                <div style="
+                    background: rgba(255,255,255,0.1);
+                    padding: 8px 12px;
+                    border-radius: 15px;
+                    font-size: 0.9rem;
+                    border-left: 3px solid #4CAF50;
+                ">
+                    <div style="font-weight: bold;">${document.getElementById('start').value}</div>
+                    <div style="font-size: 0.8rem; opacity: 0.9;">→ ${document.getElementById('end').value}</div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="toggleMapType()" id="map-type-btn" style="
+                    background: rgba(255,255,255,0.2);
+                    color: white;
+                    border: none;
+                    padding: 8px 12px;
+                    border-radius: 20px;
+                    cursor: pointer;
+                    font-size: 0.9rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
+                ">
+                    <span>🗺️</span>
+                    <span id="map-type-text">Map</span>
+                </button>
+                <button onclick="exitNavigation()" style="
+                    background: rgba(255,0,0,0.3);
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 20px;
+                    cursor: pointer;
+                    font-size: 0.9rem;
+                    font-weight: bold;
+                    transition: all 0.3s ease;
+                ">✕ Exit</button>
+            </div>
+        </div>
+    `;
+}
+
+// Show navigation footer
+function showNavigationFooter() {
+    const footer = document.createElement('div');
+    footer.id = 'navigation-footer';
+    footer.style.cssText = `
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 140px;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        border-top: 3px solid #4CAF50;
+        z-index: 1001;
+        padding: 20px;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+        color: white;
+    `;
+    
+    footer.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; height: 100%;">
+            <div class="nav-info" style="text-align: center; flex: 1;">
+                <div style="
+                    font-size: 2rem; 
+                    font-weight: bold; 
+                    color: #4CAF50;
+                    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                    margin-bottom: 5px;
+                " id="nav-distance">
+                    ${currentRoute.selectedRoute.legs[0].distance.text}
+                </div>
+                <div style="color: rgba(255,255,255,0.8); font-size: 0.9rem; font-weight: 500;">
+                    📏 Distance Remaining
+                </div>
+            </div>
+            
+            <div class="nav-info" style="text-align: center; flex: 1;">
+                <div style="
+                    font-size: 2rem; 
+                    font-weight: bold; 
+                    color: #FFD700;
+                    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                    margin-bottom: 5px;
+                " id="nav-time">
+                    ${currentRoute.selectedRoute.legs[0].duration.text}
+                </div>
+                <div style="color: rgba(255,255,255,0.8); font-size: 0.9rem; font-weight: 500;">
+                    ⏱️ Time Remaining
+                </div>
+            </div>
+            
+            <div class="nav-info" style="text-align: center; flex: 1;">
+                <div style="
+                    font-size: 2rem; 
+                    font-weight: bold; 
+                    color: #FF6B6B;
+                    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                    margin-bottom: 5px;
+                " id="nav-speed">
+                    -- km/h
+                </div>
+                <div style="color: rgba(255,255,255,0.8); font-size: 0.9rem; font-weight: 500;">
+                    🚗 Current Speed
+                </div>
+            </div>
+            
+            <div class="nav-actions" style="display: flex; gap: 10px; margin-left: 20px;">
+                <button onclick="recenterMap()" id="recenter-btn" style="
+                    background: linear-gradient(135deg, #2196F3, #1976D2);
+                    color: white;
+                    border: none;
+                    padding: 12px 20px;
+                    border-radius: 25px;
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 0.9rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                ">
+                    <span style="font-size: 1.1em;">📍</span>
+                    <span>Recenter</span>
+                </button>
+                
+                <button onclick="toggleVoiceGuidance()" id="voice-btn" style="
+                    background: linear-gradient(135deg, #4CAF50, #388E3C);
+                    color: white;
+                    border: none;
+                    padding: 12px 20px;
+                    border-radius: 25px;
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 0.9rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                ">
+                    <span style="font-size: 1.1em;">🔊</span>
+                    <span>Voice On</span>
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(footer);
+    
+    // Add hover effects
+    const buttons = footer.querySelectorAll('button');
+    buttons.forEach(btn => {
+        btn.addEventListener('mouseenter', () => {
+            btn.style.transform = 'translateY(-2px)';
+            btn.style.boxShadow = '0 6px 12px rgba(0,0,0,0.3)';
+        });
+        btn.addEventListener('mouseleave', () => {
+            btn.style.transform = 'translateY(0)';
+            btn.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+        });
+    });
+}
+
+// Exit navigation mode
+function exitNavigation() {
+    navigationMode = false;
+    
+    // Stop location tracking
+    stopLocationTracking();
+    
+    // Remove navigation footer
+    const navFooter = document.getElementById('navigation-footer');
+    if (navFooter) {
+        navFooter.remove();
+    }
+    
+    // Restore main content
+    document.getElementById('controls').style.display = 'block';
+    document.getElementById('routeInfo').style.display = 'block';
+    document.getElementById('reported-issues-section').style.display = 'block';
+    document.querySelector('footer').style.display = 'block';
+    
+    // Restore map container
+    const mapContainer = document.getElementById('map-container');
+    mapContainer.style.position = 'relative';
+    mapContainer.style.top = 'auto';
+    mapContainer.style.left = 'auto';
+    mapContainer.style.right = 'auto';
+    mapContainer.style.bottom = 'auto';
+    mapContainer.style.zIndex = 'auto';
+    mapContainer.style.borderRadius = '8px';
+    
+    // Restore header
+    const header = document.querySelector('header');
+    header.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1>Kigali Traffic Navigation System</h1>
+                <p>Find the best route with real-time traffic updates</p>
+            </div>
+            <nav style="display: flex; gap: 15px; align-items: center;">
+                <a href="issue-report.html" style="
+                    color: white;
+                    text-decoration: none;
+                    padding: 10px 20px;
+                    background: rgba(255,255,255,0.2);
+                    border-radius: 25px;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.3s ease;
+                    border: 1px solid rgba(255,255,255,0.3);
+                ">
+                    <span style="font-size: 1.2em;">⚠️</span>
+                    Report an Issue
+                </a>
+                <a href="admin.html" style="
+                    color: white;
+                    text-decoration: none;
+                    padding: 10px 20px;
+                    background: rgba(255,255,255,0.2);
+                    border-radius: 25px;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.3s ease;
+                    border: 1px solid rgba(255,255,255,0.3);
+                ">
+                    <span style="font-size: 1.2em;">⚙️</span>
+                    Admin
+                </a>
+            </nav>
+        </div>
+    `;
+    
+    // Trigger map resize
+    google.maps.event.trigger(map, 'resize');
+}
+
+// Start location tracking
+function startLocationTracking() {
+    if (!navigator.geolocation) {
+        showError('Geolocation is not supported by this browser.');
+        return;
+    }
+    
+    locationWatcher = navigator.geolocation.watchPosition(
+        (position) => {
+            userLocation = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+            
+            // Update user marker on map
+            updateUserMarker(userLocation);
+            
+            // Update navigation info
+            updateNavigationInfo(userLocation);
+            
+            // Check if user is on route
+            checkRouteDeviation(userLocation);
+        },
+        (error) => {
+            console.error('Error getting location:', error);
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 5000
+        }
+    );
+}
+
+// Stop location tracking
+function stopLocationTracking() {
+    if (locationWatcher) {
+        navigator.geolocation.clearWatch(locationWatcher);
+        locationWatcher = null;
+    }
+}
+
+// Update user marker
+let userMarker = null;
+function updateUserMarker(location) {
+    if (userMarker) {
+        userMarker.setMap(null);
+    }
+    
+    // Create a custom marker with better visibility
+    userMarker = new google.maps.Marker({
+        position: location,
+        map: map,
+        icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 12,
+            fillColor: '#2196F3',
+            fillOpacity: 0.9,
+            strokeColor: '#ffffff',
+            strokeWeight: 3
+        },
+        title: 'Your Location',
+        zIndex: 1000
+    });
+    
+    // Add a pulsing effect
+    let pulseCount = 0;
+    const pulseInterval = setInterval(() => {
+        pulseCount++;
+        if (pulseCount > 10) {
+            clearInterval(pulseInterval);
+            return;
+        }
+        
+        const pulseMarker = new google.maps.Marker({
+            position: location,
+            map: map,
+            icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 12 + (pulseCount * 2),
+                fillColor: '#2196F3',
+                fillOpacity: 0.3 - (pulseCount * 0.03),
+                strokeColor: '#2196F3',
+                strokeWeight: 1
+            },
+            zIndex: 999
+        });
+        
+        setTimeout(() => {
+            pulseMarker.setMap(null);
+        }, 1000);
+    }, 100);
+}
+
+// Update navigation information
+function updateNavigationInfo(userLocation) {
+    if (!currentRoute || !currentRoute.selectedRoute) return;
+    
+    // Calculate remaining distance and time
+    const routePath = currentRoute.selectedRoute.overview_path;
+    const remainingPath = calculateRemainingPath(userLocation, routePath);
+    
+    const totalDistance = calculateTotalDistance(routePath);
+    const remainingDistance = calculateTotalDistance(remainingPath);
+    const progress = ((totalDistance - remainingDistance) / totalDistance) * 100;
+    const estimatedTime = calculateEstimatedTime(remainingDistance, 30); // Assume 30 km/h average speed
+    
+    // Update display with animations
+    const distanceElement = document.getElementById('nav-distance');
+    const timeElement = document.getElementById('nav-time');
+    const speedElement = document.getElementById('nav-speed');
+    
+    // Animate distance change
+    const currentDistance = distanceElement.textContent;
+    const newDistance = formatDistance(remainingDistance);
+    if (currentDistance !== newDistance) {
+        distanceElement.style.transform = 'scale(1.1)';
+        distanceElement.style.color = '#FFD700';
+        setTimeout(() => {
+            distanceElement.textContent = newDistance;
+            distanceElement.style.transform = 'scale(1)';
+            distanceElement.style.color = '#4CAF50';
+        }, 150);
+    }
+    
+    // Animate time change
+    const currentTime = timeElement.textContent;
+    const newTime = formatTime(estimatedTime);
+    if (currentTime !== newTime) {
+        timeElement.style.transform = 'scale(1.1)';
+        timeElement.style.color = '#FFD700';
+        setTimeout(() => {
+            timeElement.textContent = newTime;
+            timeElement.style.transform = 'scale(1)';
+            timeElement.style.color = '#FFD700';
+        }, 150);
+    }
+    
+    // Update speed (simulated)
+    const speed = Math.random() * 20 + 20; // Random speed between 20-40 km/h
+    speedElement.textContent = `${speed.toFixed(0)} km/h`;
+    
+    // Update progress indicator
+    updateProgressIndicator(progress);
+}
+
+// Update progress indicator
+function updateProgressIndicator(progress) {
+    let progressBar = document.getElementById('nav-progress-bar');
+    if (!progressBar) {
+        // Create progress bar if it doesn't exist
+        const footer = document.getElementById('navigation-footer');
+        if (footer) {
+            const progressContainer = document.createElement('div');
+            progressContainer.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: rgba(255,255,255,0.2);
+            `;
+            
+            progressBar = document.createElement('div');
+            progressBar.id = 'nav-progress-bar';
+            progressBar.style.cssText = `
+                height: 100%;
+                background: linear-gradient(90deg, #4CAF50, #8BC34A);
+                transition: width 0.5s ease;
+                border-radius: 2px;
+            `;
+            
+            progressContainer.appendChild(progressBar);
+            footer.appendChild(progressContainer);
+        }
+    }
+    
+    if (progressBar) {
+        progressBar.style.width = `${Math.min(progress, 100)}%`;
+    }
+}
+
+// Calculate remaining path
+function calculateRemainingPath(userLocation, routePath) {
+    // Find the closest point on the route to user location
+    let closestIndex = 0;
+    let minDistance = Infinity;
+    
+    routePath.forEach((point, index) => {
+        const distance = google.maps.geometry.spherical.computeDistanceBetween(
+            new google.maps.LatLng(userLocation.lat, userLocation.lng),
+            point
+        );
+        
+        if (distance < minDistance) {
+            minDistance = distance;
+            closestIndex = index;
+        }
+    });
+    
+    // Return remaining path from closest point
+    return routePath.slice(closestIndex);
+}
+
+// Calculate total distance
+function calculateTotalDistance(path) {
+    let totalDistance = 0;
+    
+    for (let i = 1; i < path.length; i++) {
+        totalDistance += google.maps.geometry.spherical.computeDistanceBetween(
+            path[i-1],
+            path[i]
+        );
+    }
+    
+    return totalDistance;
+}
+
+// Calculate estimated time
+function calculateEstimatedTime(distance, averageSpeed) {
+    return (distance / 1000) / averageSpeed * 60; // Convert to minutes
+}
+
+// Format distance
+function formatDistance(meters) {
+    if (meters < 1000) {
+        return `${Math.round(meters)} m`;
+    } else {
+        return `${(meters / 1000).toFixed(1)} km`;
+    }
+}
+
+// Format time
+function formatTime(minutes) {
+    if (minutes < 60) {
+        return `${Math.round(minutes)} min`;
+    } else {
+        const hours = Math.floor(minutes / 60);
+        const mins = Math.round(minutes % 60);
+        return `${hours}h ${mins}m`;
+    }
+}
+
+// Check route deviation
+function checkRouteDeviation(userLocation) {
+    if (!currentRoute || !currentRoute.selectedRoute) return;
+    
+    const routePath = currentRoute.selectedRoute.overview_path;
+    const deviationDistance = findClosestDistance(userLocation, routePath);
+    
+    if (deviationDistance > 100) { // More than 100 meters off route
+        showRouteDeviationWarning();
+    }
+}
+
+// Find closest distance to route
+function findClosestDistance(userLocation, routePath) {
+    let minDistance = Infinity;
+    
+    routePath.forEach(point => {
+        const distance = google.maps.geometry.spherical.computeDistanceBetween(
+            new google.maps.LatLng(userLocation.lat, userLocation.lng),
+            point
+        );
+        
+        if (distance < minDistance) {
+            minDistance = distance;
+        }
+    });
+    
+    return minDistance;
+}
+
+// Show route deviation warning
+function showRouteDeviationWarning() {
+    const warning = document.createElement('div');
+    warning.style.cssText = `
+        position: fixed;
+        top: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #ff9800;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        z-index: 1002;
+        font-weight: bold;
+    `;
+    warning.textContent = '⚠️ You are off route!';
+    
+    document.body.appendChild(warning);
+    
+    setTimeout(() => {
+        if (warning.parentNode) {
+            warning.parentNode.removeChild(warning);
+        }
+    }, 3000);
+}
+
+// Recenter map on user location
+function recenterMap() {
+    if (userLocation) {
+        // Smooth animation to user location
+        map.panTo(userLocation);
+        map.setZoom(16);
+        
+        // Add visual feedback
+        const recenterBtn = document.getElementById('recenter-btn');
+        if (recenterBtn) {
+            recenterBtn.innerHTML = '<span style="font-size: 1.1em;">✅</span><span>Centered</span>';
+            recenterBtn.style.background = 'linear-gradient(135deg, #4CAF50, #388E3C)';
+            
+            setTimeout(() => {
+                recenterBtn.innerHTML = '<span style="font-size: 1.1em;">📍</span><span>Recenter</span>';
+                recenterBtn.style.background = 'linear-gradient(135deg, #2196F3, #1976D2)';
+            }, 2000);
+        }
+    } else {
+        // If no user location, center on route
+        if (currentRoute && currentRoute.selectedRoute) {
+            const bounds = new google.maps.LatLngBounds();
+            currentRoute.selectedRoute.overview_path.forEach(point => {
+                bounds.extend(point);
+            });
+            map.fitBounds(bounds);
+        }
+    }
+}
+
+// Toggle map type (Map/Satellite)
+let currentMapType = 'roadmap';
+function toggleMapType() {
+    const mapTypeBtn = document.getElementById('map-type-btn');
+    const mapTypeText = document.getElementById('map-type-text');
+    
+    if (currentMapType === 'roadmap') {
+        map.setMapTypeId(google.maps.MapTypeId.SATELLITE);
+        currentMapType = 'satellite';
+        mapTypeText.textContent = 'Satellite';
+        mapTypeBtn.innerHTML = '<span>🛰️</span><span>Satellite</span>';
+    } else {
+        map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
+        currentMapType = 'roadmap';
+        mapTypeText.textContent = 'Map';
+        mapTypeBtn.innerHTML = '<span>🗺️</span><span>Map</span>';
+    }
+}
+
+// Toggle voice guidance
+let voiceEnabled = true;
+function toggleVoiceGuidance() {
+    voiceEnabled = !voiceEnabled;
+    const voiceBtn = document.getElementById('voice-btn');
+    voiceBtn.textContent = voiceEnabled ? '🔊 Voice On' : '🔇 Voice Off';
+    voiceBtn.style.background = voiceEnabled ? '#4CAF50' : '#666';
 }
 
 // Issues Management Functions

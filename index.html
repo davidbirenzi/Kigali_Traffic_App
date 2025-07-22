@@ -299,10 +299,41 @@
                 gap: 5px;
             }
 
-            .route-details strong {
-                min-width: auto;
-            }
+                    .route-details strong {
+            min-width: auto;
         }
+    }
+
+    /* Navigation button styles */
+    .route-actions {
+        margin-top: 15px;
+        text-align: center;
+    }
+
+    .btn-navigate {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-navigate:hover {
+        background-color: #45a049;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .btn-navigate:active {
+        transform: translateY(0);
+    }
     </style>
 </head>
 <body>
@@ -327,21 +358,6 @@
                 ">
                     <span style="font-size: 1.2em;">⚠️</span>
                     Report an Issue
-                </a>
-                <a href="admin.html" style="
-                    color: white;
-                    text-decoration: none;
-                    padding: 10px 20px;
-                    background: rgba(255,255,255,0.2);
-                    border-radius: 25px;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    transition: all 0.3s ease;
-                    border: 1px solid rgba(255,255,255,0.3);
-                ">
-                    <span style="font-size: 1.2em;">⚙️</span>
-                    Admin
                 </a>
             </nav>
         </div>
@@ -423,7 +439,7 @@
     </div>
 
     <footer>
-        <p>© 2024 davidbirenzi | All rights reserved</p>
+        <p>© 2025 davidbirenzi | All rights reserved</p>
     </footer>
 
     <!-- Replace YOUR_API_KEY with your actual Google Maps API key -->
@@ -431,5 +447,22 @@
     
     <!-- Include the JavaScript file we created earlier -->
     <script src="script.js"></script>
+    <script>
+      // Hide admin button if not admin
+      document.addEventListener('DOMContentLoaded', function() {
+        const loggedInUser = sessionStorage.getItem('loggedInUser');
+        let isAdmin = false;
+        try {
+          if (loggedInUser) {
+            const user = JSON.parse(loggedInUser);
+            isAdmin = user && user.role === 'admin';
+          }
+        } catch (e) {}
+        const adminBtn = document.getElementById('admin-btn');
+        if (adminBtn && !isAdmin) {
+          adminBtn.style.display = 'none';
+        }
+      });
+    </script>
 </body>
 </html>

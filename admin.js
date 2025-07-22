@@ -61,10 +61,20 @@ function checkAdminAuth() {
         }, 2000);
         return false;
     }
-    
-    // For demo purposes, allow any logged-in user to access admin
-    // In a real application, you would check if the user has admin privileges
-    document.getElementById('admin-name').textContent = loggedInUser;
+    // Parse user and set admin name
+    try {
+        const user = JSON.parse(loggedInUser);
+        if (user.role !== 'admin') {
+            showPopup('Access Denied', 'You are not authorized to access the admin dashboard.', 'error');
+            setTimeout(() => {
+                window.location.href = 'auth.html';
+            }, 2000);
+            return false;
+        }
+        document.getElementById('admin-name').textContent = '👤 Admin';
+    } catch (e) {
+        document.getElementById('admin-name').textContent = '👤 Admin';
+    }
     return true;
 }
 
@@ -196,11 +206,32 @@ function createIssueElement(issue) {
                         ${issue.status === 'solved' ? 'disabled' : ''}>
                     Mark as Solved
                 </button>
+                <button class="status-btn delete-btn" style="background:linear-gradient(90deg,#ff5252,#ff9800);color:white;margin-left:10px;" onclick="deleteIssue('${issue.id}')">
+                    🗑️ Delete
+                </button>
             </div>
         </div>
     `;
     
     return issueDiv;
+}
+
+// Delete issue by id
+function deleteIssue(issueId) {
+    const idx = allIssues.findIndex(issue => issue.id === issueId);
+    if (idx === -1) {
+        showPopup('Error', 'Issue not found.', 'error');
+        return;
+    }
+    // Confirm delete
+    if (!confirm('Are you sure you want to delete this issue? This action cannot be undone.')) {
+        return;
+    }
+    allIssues.splice(idx, 1);
+    localStorage.setItem('trafficIssues', JSON.stringify(allIssues));
+    updateStatistics();
+    filterIssues();
+    showPopup('Deleted', 'Issue has been deleted.', 'success');
 }
 
 // Get issue type icon
