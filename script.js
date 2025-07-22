@@ -439,25 +439,6 @@ function showNavigationFooter() {
                     <span style="font-size: 1.1em;">📍</span>
                     <span>Recenter</span>
                 </button>
-                
-                <button onclick="toggleVoiceGuidance()" id="voice-btn" style="
-                    background: linear-gradient(135deg, #4CAF50, #388E3C);
-                    color: white;
-                    border: none;
-                    padding: 12px 20px;
-                    border-radius: 25px;
-                    cursor: pointer;
-                    font-weight: bold;
-                    font-size: 0.9rem;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    transition: all 0.3s ease;
-                    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-                ">
-                    <span style="font-size: 1.1em;">🔊</span>
-                    <span>Voice On</span>
-                </button>
             </div>
         </div>
     `;
@@ -554,26 +535,47 @@ function exitNavigation() {
     google.maps.event.trigger(map, 'resize');
 }
 
-// Start location tracking
+// Accurate speed calculation
+let lastPosition = null;
+let lastTimestamp = null;
+let currentSpeed = 0;
+
 function startLocationTracking() {
     if (!navigator.geolocation) {
         showError('Geolocation is not supported by this browser.');
         return;
     }
-    
     locationWatcher = navigator.geolocation.watchPosition(
         (position) => {
             userLocation = {
                 lat: position.coords.latitude,
                 lng: position.coords.longitude
             };
-            
+            // Speed calculation
+            if (lastPosition && lastTimestamp) {
+                const now = Date.now();
+                const dt = (now - lastTimestamp) / 1000; // seconds
+                const dx = google.maps.geometry.spherical.computeDistanceBetween(
+                    new google.maps.LatLng(userLocation.lat, userLocation.lng),
+                    new google.maps.LatLng(lastPosition.lat, lastPosition.lng)
+                );
+                // Speed in m/s, convert to km/h
+                if (dt > 0) {
+                    const speedKmh = (dx / dt) * 3.6;
+                    // If movement is less than 1m, treat as stopped
+                    currentSpeed = dx < 1 ? 0 : speedKmh;
+                } else {
+                    currentSpeed = 0;
+                }
+            } else {
+                currentSpeed = 0;
+            }
+            lastPosition = { ...userLocation };
+            lastTimestamp = Date.now();
             // Update user marker on map
             updateUserMarker(userLocation);
-            
             // Update navigation info
             updateNavigationInfo(userLocation);
-            
             // Check if user is on route
             checkRouteDeviation(userLocation);
         },
@@ -588,12 +590,14 @@ function startLocationTracking() {
     );
 }
 
-// Stop location tracking
 function stopLocationTracking() {
     if (locationWatcher) {
         navigator.geolocation.clearWatch(locationWatcher);
         locationWatcher = null;
     }
+    lastPosition = null;
+    lastTimestamp = null;
+    currentSpeed = 0;
 }
 
 // Update user marker
@@ -648,7 +652,6 @@ function updateUserMarker(location) {
     }, 100);
 }
 
-// Update navigation information
 function updateNavigationInfo(userLocation) {
     if (!currentRoute || !currentRoute.selectedRoute) return;
     
@@ -692,9 +695,8 @@ function updateNavigationInfo(userLocation) {
         }, 150);
     }
     
-    // Update speed (simulated)
-    const speed = Math.random() * 20 + 20; // Random speed between 20-40 km/h
-    speedElement.textContent = `${speed.toFixed(0)} km/h`;
+    // Update speed (accurate)
+    speedElement.textContent = `${currentSpeed.toFixed(0)} km/h`;
     
     // Update progress indicator
     updateProgressIndicator(progress);
