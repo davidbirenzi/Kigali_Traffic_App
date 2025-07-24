@@ -852,7 +852,17 @@ function createIssueElement(issue) {
             </div>
         `;
     }
-    
+    // --- Reporter email extraction logic ---
+    let reporterEmail = issue.reporter;
+    try {
+        if (typeof reporterEmail === 'string' && reporterEmail.startsWith('{')) {
+            const parsed = JSON.parse(reporterEmail);
+            if (parsed.email) reporterEmail = parsed.email;
+        } else if (typeof reporterEmail === 'object' && reporterEmail.email) {
+            reporterEmail = reporterEmail.email;
+        }
+    } catch (e) {}
+    // --- End reporter email extraction ---
     issueDiv.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
             <div style="display: flex; align-items: center; gap: 10px;">
@@ -888,7 +898,7 @@ function createIssueElement(issue) {
             font-size: 0.9rem;
             color: #666;
         ">
-            <span>👤 Reported by: ${issue.reporter}</span>
+            <span>👤 Reported by: ${reporterEmail}</span>
             <span>🕒 ${formattedDate}</span>
         </div>
         

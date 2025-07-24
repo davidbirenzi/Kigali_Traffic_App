@@ -226,10 +226,11 @@ async function submitIssue(event) {
         }
         selectedLocation = null;
         
-        // Redirect to home page after 2 seconds
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 2000);
+        // Show the map again after submission
+        document.getElementById('map-container').style.display = 'block';
+        if (map && map.setZoom) {
+            map.setZoom(12);
+        }
         
     } catch (error) {
         console.error('Error submitting issue:', error);
