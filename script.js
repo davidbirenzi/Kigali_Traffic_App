@@ -920,11 +920,11 @@ function toggleIssuesView() {
     
     if (issuesContainer.style.display === 'none') {
         issuesContainer.style.display = 'block';
-        viewBtn.innerHTML = '<span style="font-size: 1.2em;">👁️</span> Hide Issues';
+        viewBtn.innerHTML = '<span style="font-size: 1.2em;"></span> Hide Issues';
         loadIssues();
     } else {
         issuesContainer.style.display = 'none';
-        viewBtn.innerHTML = '<span style="font-size: 1.2em;">📋</span> See Reported Issues';
+        viewBtn.innerHTML = '<span style="font-size: 1.2em;"></span> See Reported Issues';
     }
 }
 
