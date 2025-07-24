@@ -1,60 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+:root {
+    --primary: #00b8a9;
+    --primary-dark: #00897b;
+    --primary-light: #e0f7fa;
+    --accent: #f5e105;
+    --danger: #ff5252;
+    --success: #43e97b;
+    --bg: #f7fafc;
+    --card-bg: #fff;
+    --shadow: 0 4px 24px rgba(0,0,0,0.07);
+    --radius: 16px;
+    --transition: 0.25s cubic-bezier(.4,0,.2,1);
+}
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-}
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-
-body {
     font-family: 'Inter', 'Roboto', Arial, sans-serif;
-    background: linear-gradient(135deg, #e3f0ff 0%, #f4f4f4 100%);
+}
+body {
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--bg) 100%);
     line-height: 1.6;
     color: #333;
 }
-
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 32px 16px 16px 16px;
 }
-
 header {
-    background: linear-gradient(90deg, #2196F3 60%, #21CBF3 100%);
+    background: linear-gradient(90deg, var(--primary) 60%, var(--primary-dark) 100%);
     color: white;
-    padding: 28px 20px 20px 20px;
-    border-radius: 16px;
-    margin-bottom: 30px;
-    box-shadow: 0 6px 18px rgba(33, 150, 243, 0.08);
+    padding: 1.5rem 0.5rem 1rem 0.5rem;
+    border-radius: var(--radius);
+    margin-bottom: 32px;
+    box-shadow: var(--shadow);
     position: relative;
     overflow: hidden;
+    transition: box-shadow var(--transition);
 }
-
 .header-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 18px;
 }
-
 .header-content h1 {
-    font-size: 28px;
+    font-size: 2.1rem;
+    font-weight: 800;
+    letter-spacing: 1px;
     margin: 0;
+    line-height: 1;
 }
-
 .admin-logo {
     background: rgba(255,255,255,0.15);
     border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(33,150,243,0.12);
+    box-shadow: 0 2px 8px rgba(0,184,169,0.12);
     padding: 6px;
 }
-
 .logo-title {
     display: flex;
     align-items: center;
     gap: 12px;
 }
-
 .admin-info {
     display: flex;
     align-items: center;
@@ -63,32 +73,28 @@ header {
     padding: 8px 18px;
     border-radius: 20px;
     font-size: 1rem;
-    box-shadow: 0 2px 8px rgba(33,150,243,0.06);
+    box-shadow: 0 2px 8px rgba(0,184,169,0.06);
 }
-
 #admin-name {
     font-weight: bold;
     font-size: 16px;
 }
-
 #logout-btn {
-    background: linear-gradient(90deg, #ff5252 0%, #ff9800 100%);
+    background: linear-gradient(90deg, var(--danger) 0%, var(--accent) 100%);
     color: white;
     border: none;
-    padding: 8px 20px;
-    border-radius: 20px;
+    padding: 10px 28px;
+    border-radius: 22px;
     cursor: pointer;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 1rem;
-    transition: background 0.3s, box-shadow 0.3s;
+    transition: background var(--transition), box-shadow var(--transition);
     box-shadow: 0 2px 8px rgba(255,152,0,0.08);
 }
-
 #logout-btn:hover {
-    background: linear-gradient(90deg, #ff9800 0%, #ff5252 100%);
+    background: linear-gradient(90deg, var(--accent) 0%, var(--danger) 100%);
     box-shadow: 0 4px 16px rgba(255,82,82,0.15);
 }
-
 .back-btn {
     color: white;
     text-decoration: none;
@@ -96,70 +102,59 @@ header {
     padding: 10px 18px;
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 20px;
-    transition: all 0.3s ease;
+    transition: all var(--transition);
     display: inline-block;
     position: absolute;
     right: 24px;
     top: 24px;
     background: rgba(255,255,255,0.10);
-    box-shadow: 0 2px 8px rgba(33,150,243,0.08);
+    box-shadow: 0 2px 8px rgba(0,184,169,0.08);
 }
-
 .back-btn:hover {
     background: rgba(255, 255, 255, 0.18);
 }
-
-/* Statistics Section */
 .stats-section {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 24px;
     margin-bottom: 32px;
 }
-
 .stat-card {
-    background: linear-gradient(135deg, #fff 60%, #e3f0ff 100%);
+    background: linear-gradient(135deg, var(--card-bg) 60%, var(--primary-light) 100%);
     padding: 32px 20px 24px 20px;
-    border-radius: 16px;
-    box-shadow: 0 4px 18px rgba(33, 150, 243, 0.07);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
     text-align: center;
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: transform var(--transition), box-shadow var(--transition);
     position: relative;
 }
-
 .stat-card:hover {
     transform: translateY(-6px) scale(1.03);
-    box-shadow: 0 8px 32px rgba(33, 150, 243, 0.13);
+    box-shadow: 0 8px 32px rgba(0,184,169,0.13);
 }
-
 .stat-icon {
     font-size: 2.2rem;
     margin-bottom: 10px;
     display: block;
-    filter: drop-shadow(0 2px 6px rgba(33,150,243,0.10));
+    filter: drop-shadow(0 2px 6px rgba(0,184,169,0.10));
 }
-
-.stat-total { color: #2196F3; }
-.stat-pending { color: #ff9800; }
-.stat-solved { color: #4caf50; }
-
+.stat-total { color: var(--primary); }
+.stat-pending { color: var(--accent); }
+.stat-solved { color: var(--success); }
 .stat-number {
     font-size: 2.5rem;
     font-weight: 700;
     margin-bottom: 8px;
     letter-spacing: 1px;
     color: #222;
-    transition: color 0.3s;
+    transition: color var(--transition);
 }
-
 .stat-card.pending .stat-number {
-    color: #ff9800;
+    color: var(--accent);
 }
-
 .stat-card.solved .stat-number {
-    color: #4caf50;
+    color: var(--success);
 }
-
 .stat-label {
     color: #666;
     font-size: 1rem;
@@ -167,134 +162,117 @@ header {
     letter-spacing: 1px;
     font-weight: 600;
 }
-
-/* Filters Section */
 .filters-section {
-    background: #fff;
+    background: var(--card-bg);
     padding: 22px 18px;
     border-radius: 14px;
-    box-shadow: 0 2px 10px rgba(33,150,243,0.06);
+    box-shadow: 0 2px 10px rgba(0,184,169,0.06);
     margin-bottom: 32px;
     display: flex;
     gap: 18px;
     flex-wrap: wrap;
     align-items: end;
 }
-
 .filter-group, .search-group {
     flex: 1;
     min-width: 200px;
 }
-
 .filter-group label, .search-group label {
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
-    color: #2196F3;
+    color: var(--primary);
 }
-
 .filter-group select, .search-group input {
     width: 100%;
-    padding: 12px 16px;
-    border: 1.5px solid #e3f0ff;
+    padding: 14px 18px;
+    border: 1.5px solid var(--primary-light);
     border-radius: 24px;
     font-size: 1rem;
-    transition: border-color 0.3s, box-shadow 0.3s;
+    transition: border-color var(--transition), box-shadow var(--transition);
     background: #f8f9fa;
     outline: none;
 }
-
 .filter-group select:focus, .search-group input:focus {
-    border-color: #2196F3;
-    box-shadow: 0 0 8px rgba(33, 150, 243, 0.13);
+    border-color: var(--primary);
+    box-shadow: 0 0 8px rgba(0,184,169,0.13);
 }
-
-/* Issues Container */
 .issues-container {
-    background: #fff;
+    background: var(--card-bg);
     border-radius: 14px;
-    box-shadow: 0 4px 18px rgba(33, 150, 243, 0.07);
+    box-shadow: var(--shadow);
     overflow: hidden;
 }
-
 .issues-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 22px 20px 18px 20px;
-    border-bottom: 1px solid #e3f0ff;
+    border-bottom: 1px solid var(--primary-light);
     background: #f8f9fa;
 }
-
 .issues-header h2 {
     margin: 0;
-    color: #2196F3;
+    color: var(--primary);
     font-weight: 700;
 }
-
 .refresh-btn {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 18px;
-    background: linear-gradient(90deg, #2196F3 60%, #21CBF3 100%);
+    padding: 12px 24px;
+    background: linear-gradient(90deg, var(--primary) 60%, var(--primary-dark) 100%);
     color: white;
     border: none;
     border-radius: 20px;
     cursor: pointer;
     font-weight: 600;
     font-size: 1rem;
-    transition: background 0.3s, box-shadow 0.3s;
-    box-shadow: 0 2px 8px rgba(33,150,243,0.08);
+    transition: background var(--transition), box-shadow var(--transition);
+    box-shadow: 0 2px 8px rgba(0,184,169,0.08);
 }
-
 .refresh-btn:hover {
-    background: linear-gradient(90deg, #21CBF3 0%, #2196F3 100%);
-    box-shadow: 0 4px 16px rgba(33,150,243,0.13);
+    background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary) 100%);
+    box-shadow: 0 4px 16px rgba(0,184,169,0.13);
 }
-
 .issues-list {
     max-height: 600px;
     overflow-y: auto;
     padding: 24px 20px;
 }
-
-/* Issue Item Styles */
 .delete-btn {
-    background: linear-gradient(90deg, #ff5252 60%, #ff9800 100%) !important;
+    background: linear-gradient(90deg, var(--danger) 60%, var(--accent) 100%) !important;
     color: #fff !important;
     border: none;
     font-weight: 700;
     border-radius: 20px;
-    padding: 8px 20px;
+    padding: 10px 24px;
     margin-left: 10px;
     box-shadow: 0 2px 8px rgba(255,82,82,0.10);
-    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
     display: inline-flex;
     align-items: center;
     gap: 6px;
 }
 .delete-btn:hover {
-    background: linear-gradient(90deg, #ff9800 0%, #ff5252 100%) !important;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--danger) 100%) !important;
     box-shadow: 0 4px 16px rgba(255,82,82,0.18);
     transform: translateY(-2px) scale(1.04);
 }
-
 .issue-item {
-    border: 1.5px solid #e3f0ff;
+    border: 1.5px solid var(--primary-light);
     border-radius: 18px;
     padding: 32px 24px 28px 24px;
     margin-bottom: 28px;
-    background: linear-gradient(135deg, #fff 80%, #e3f0ff 100%);
-    transition: box-shadow 0.3s, border-color 0.3s;
-    box-shadow: 0 4px 18px rgba(33,150,243,0.10);
+    background: linear-gradient(135deg, var(--card-bg) 80%, var(--primary-light) 100%);
+    transition: box-shadow var(--transition), border-color var(--transition);
+    box-shadow: var(--shadow);
     position: relative;
 }
 .issue-item:hover {
-    box-shadow: 0 12px 36px rgba(33, 150, 243, 0.18);
-    border-color: #2196F3;
+    box-shadow: 0 12px 36px rgba(0,184,169,0.18);
+    border-color: var(--primary);
 }
-
 .issue-header {
     display: flex;
     justify-content: space-between;
@@ -302,7 +280,6 @@ header {
     margin-bottom: 18px;
     gap: 10px;
 }
-
 .issue-title {
     display: flex;
     align-items: center;
@@ -310,18 +287,15 @@ header {
     font-size: 1.18rem;
     font-weight: 700;
 }
-
 .issue-icon {
     font-size: 1.5em;
 }
-
 .issue-type {
     font-size: 18px;
     font-weight: bold;
     color: #333;
     text-transform: capitalize;
 }
-
 .status-badge {
     font-size: 1.05rem;
     padding: 8px 18px;
@@ -329,33 +303,28 @@ header {
     font-weight: 700;
     letter-spacing: 1px;
 }
-
 .status-badge.pending {
-    background: #fff3e0;
-    color: #f57c00;
+    background: #fffde4;
+    color: var(--accent);
 }
-
 .status-badge.solved {
     background: #e8f5e8;
-    color: #388e3c;
+    color: var(--success);
 }
-
 .issue-description {
     color: #666;
     margin-bottom: 15px;
     line-height: 1.5;
     font-size: 1.08rem;
 }
-
 .issue-location {
     background: #f8f9fa;
     padding: 10px 14px;
     border-radius: 6px;
     margin-bottom: 15px;
     font-weight: 600;
-    color: #2196F3;
+    color: var(--primary);
 }
-
 .issue-meta {
     display: flex;
     justify-content: space-between;
@@ -364,75 +333,65 @@ header {
     color: #666;
     margin-bottom: 15px;
 }
-
 .issue-image {
     margin-top: 15px;
 }
-
 .issue-image img {
     max-width: 100%;
     max-height: 200px;
     border-radius: 6px;
-    border: 1.5px solid #e3f0ff;
+    border: 1.5px solid var(--primary-light);
 }
-
-/* Status Update Section */
 .status-update {
     margin-top: 22px;
     padding-top: 18px;
-    border-top: 1.5px solid #e3f0ff;
+    border-top: 1.5px solid var(--primary-light);
 }
-
 .status-update h4 {
     margin-bottom: 10px;
     color: #333;
 }
-
 .status-buttons {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
 }
-
 .status-btn {
-    padding: 8px 20px;
+    padding: 10px 24px;
     border: none;
     border-radius: 20px;
     cursor: pointer;
     font-size: 1rem;
     font-weight: 700;
-    transition: all 0.3s;
-    box-shadow: 0 2px 8px rgba(33,150,243,0.08);
+    transition: all var(--transition);
+    box-shadow: 0 2px 8px rgba(0,184,169,0.08);
     margin-bottom: 6px;
 }
-
 .status-btn.pending {
-    background: linear-gradient(90deg, #ff9800 60%, #ffd180 100%);
+    background: linear-gradient(90deg, var(--accent) 60%, #f5ea52 100%);
     color: #fff;
 }
 .status-btn.pending:hover {
-    background: linear-gradient(90deg, #ffd180 0%, #ff9800 100%);
+    background: linear-gradient(90deg, #fffde4 0%, var(--accent) 100%);
 }
 .status-btn.solved {
-    background: linear-gradient(90deg, #4caf50 60%, #8bc34a 100%);
+    background: linear-gradient(90deg, var(--success) 60%, #43e97b 100%);
     color: #fff;
 }
 .status-btn.solved:hover {
-    background: linear-gradient(90deg, #8bc34a 0%, #4caf50 100%);
+    background: linear-gradient(90deg, #43e97b 0%, var(--success) 100%);
 }
 .status-btn.active {
     opacity: 0.7;
     cursor: not-allowed;
 }
-
-/* Custom Popup Styles */
 .popup-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(33, 150, 243, 0.18);
+    background: rgba(0, 184, 169, 0.18);
     backdrop-filter: blur(2px);
     display: flex;
     justify-content: center;
@@ -440,137 +399,112 @@ header {
     z-index: 1000;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s ease;
+    transition: all var(--transition);
 }
-
 .popup-overlay.show {
     opacity: 1;
     visibility: visible;
 }
-
 .popup {
-    background: linear-gradient(135deg, #fff 80%, #e3f0ff 100%);
+    background: linear-gradient(135deg, var(--card-bg) 80%, var(--primary-light) 100%);
     padding: 36px 28px;
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(33, 150, 243, 0.18);
+    border-radius: var(--radius);
+    box-shadow: 0 10px 30px rgba(0, 184, 169, 0.18);
     max-width: 420px;
     width: 95%;
     text-align: center;
     transform: scale(0.7);
-    transition: transform 0.3s ease;
+    transition: transform var(--transition);
 }
-
 .popup-overlay.show .popup {
     transform: scale(1);
 }
-
 .popup-icon {
     font-size: 54px;
     margin-bottom: 22px;
 }
-
 .popup-icon.success {
     color: #28a745;
 }
-
 .popup-icon.error {
     color: #dc3545;
 }
-
 .popup-icon.warning {
-    color: #ffc107;
+    color: var(--accent);
 }
-
 .popup-title {
     font-size: 1.35rem;
     font-weight: 700;
     margin-bottom: 15px;
-    color: #2196F3;
+    color: var(--primary);
 }
-
 .popup-message {
     font-size: 1.08rem;
     color: #666;
     margin-bottom: 25px;
     line-height: 1.5;
 }
-
 .popup-button {
     padding: 14px 36px;
-    background: linear-gradient(90deg, #2196F3 60%, #21CBF3 100%);
+    background: linear-gradient(90deg, var(--primary) 60%, var(--primary-dark) 100%);
     color: white;
     border: none;
     border-radius: 24px;
     cursor: pointer;
     font-size: 1.08rem;
     font-weight: 700;
-    transition: background 0.3s, box-shadow 0.3s;
+    transition: background var(--transition), box-shadow var(--transition);
     min-width: 120px;
-    box-shadow: 0 2px 8px rgba(33,150,243,0.08);
+    box-shadow: 0 2px 8px rgba(0,184,169,0.08);
 }
-
 .popup-button:hover {
-    background: linear-gradient(90deg, #21CBF3 0%, #2196F3 100%);
-    box-shadow: 0 4px 16px rgba(33,150,243,0.13);
+    background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary) 100%);
+    box-shadow: 0 4px 16px rgba(0,184,169,0.13);
 }
-
 .popup-button.success {
     background-color: #28a745;
 }
-
 .popup-button.success:hover {
     background-color: #218838;
 }
-
 .popup-button.error {
     background-color: #dc3545;
 }
-
 .popup-button.error:hover {
     background-color: #c82333;
 }
-
-/* Responsive Design */
 @media (max-width: 900px) {
     .container {
         padding: 10px;
     }
-    
     .header-content {
         flex-direction: column;
         gap: 18px;
         text-align: center;
     }
-    
     .stats-section {
         grid-template-columns: 1fr;
     }
-    
     .filters-section {
         flex-direction: column;
     }
-    
     .filter-group, .search-group {
         min-width: auto;
     }
-    
     .issues-header {
         flex-direction: column;
         gap: 15px;
     }
-    
     .issue-header {
         flex-direction: column;
         gap: 10px;
         align-items: flex-start;
     }
-    
     .issue-meta {
         flex-direction: column;
         gap: 5px;
         align-items: flex-start;
     }
-    
     .status-buttons {
         flex-direction: column;
     }

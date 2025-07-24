@@ -261,32 +261,20 @@ function startNavigation(routeIndex) {
 // Enter full-screen navigation mode
 function enterNavigationMode() {
     navigationMode = true;
-    
     // Hide main content
     document.getElementById('controls').style.display = 'none';
     document.getElementById('routeInfo').style.display = 'none';
     document.getElementById('reported-issues-section').style.display = 'none';
     document.querySelector('footer').style.display = 'none';
-    
     // Show navigation header
     showNavigationHeader();
-    
     // Show navigation footer
     showNavigationFooter();
-    
     // Make map full screen
     const mapContainer = document.getElementById('map-container');
-    mapContainer.style.position = 'fixed';
-    mapContainer.style.top = '60px';
-    mapContainer.style.left = '0';
-    mapContainer.style.right = '0';
-    mapContainer.style.bottom = '120px';
-    mapContainer.style.zIndex = '1000';
-    mapContainer.style.borderRadius = '0';
-    
+    mapContainer.classList.add('nav-fullscreen');
     // Trigger map resize
     google.maps.event.trigger(map, 'resize');
-    
     // Center map on the route
     const bounds = new google.maps.LatLngBounds();
     currentRoute.selectedRoute.overview_path.forEach(point => {
@@ -299,57 +287,24 @@ function enterNavigationMode() {
 function showNavigationHeader() {
     const header = document.querySelector('header');
     header.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <div style="
-                    background: rgba(255,255,255,0.2);
-                    padding: 8px 12px;
-                    border-radius: 20px;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                ">
-                    <span style="font-size: 1.2em;">🚗</span>
-                    <span style="font-weight: bold;">Navigation Active</span>
+        <div class="nav-header-bar">
+            <div class="nav-header-left">
+                <span class="nav-header-icon">🚗</span>
+                <span class="nav-header-title">Navigation Active</span>
+                <span class="nav-header-route">
+                    <span class="nav-header-from">${document.getElementById('start').value}</span>
+                    <span class="nav-header-arrow">→</span>
+                    <span class="nav-header-to">${document.getElementById('end').value}</span>
+                </span>
                 </div>
-                <div style="
-                    background: rgba(255,255,255,0.1);
-                    padding: 8px 12px;
-                    border-radius: 15px;
-                    font-size: 0.9rem;
-                    border-left: 3px solid #4CAF50;
-                ">
-                    <div style="font-weight: bold;">${document.getElementById('start').value}</div>
-                    <div style="font-size: 0.8rem; opacity: 0.9;">→ ${document.getElementById('end').value}</div>
-                </div>
-            </div>
-            <div style="display: flex; gap: 10px;">
-                <button onclick="toggleMapType()" id="map-type-btn" style="
-                    background: rgba(255,255,255,0.2);
-                    color: white;
-                    border: none;
-                    padding: 8px 12px;
-                    border-radius: 20px;
-                    cursor: pointer;
-                    font-size: 0.9rem;
-                    display: flex;
-                    align-items: center;
-                    gap: 5px;
-                ">
+            <div class="nav-header-actions">
+                <button onclick="toggleMapType()" id="map-type-btn" class="nav-header-btn">
                     <span>🗺️</span>
                     <span id="map-type-text">Map</span>
                 </button>
-                <button onclick="exitNavigation()" style="
-                    background: rgba(255,0,0,0.3);
-                    color: white;
-                    border: none;
-                    padding: 8px 16px;
-                    border-radius: 20px;
-                    cursor: pointer;
-                    font-size: 0.9rem;
-                    font-weight: bold;
-                    transition: all 0.3s ease;
-                ">✕ Exit</button>
+                <button onclick="exitNavigation()" class="nav-header-btn nav-header-exit">
+                    ✕ Exit
+                </button>
             </div>
         </div>
     `;
@@ -359,178 +314,75 @@ function showNavigationHeader() {
 function showNavigationFooter() {
     const footer = document.createElement('div');
     footer.id = 'navigation-footer';
-    footer.style.cssText = `
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 140px;
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        border-top: 3px solid #4CAF50;
-        z-index: 1001;
-        padding: 20px;
-        box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
-        color: white;
-    `;
-    
+    footer.className = 'nav-footer-bar';
     footer.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; height: 100%;">
-            <div class="nav-info" style="text-align: center; flex: 1;">
-                <div style="
-                    font-size: 2rem; 
-                    font-weight: bold; 
-                    color: #4CAF50;
-                    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-                    margin-bottom: 5px;
-                " id="nav-distance">
+        <div class="nav-footer-content">
+            <div class="nav-info">
+                <div class="nav-info-value" id="nav-distance">
                     ${currentRoute.selectedRoute.legs[0].distance.text}
                 </div>
-                <div style="color: rgba(255,255,255,0.8); font-size: 0.9rem; font-weight: 500;">
-                    📏 Distance Remaining
+                <div class="nav-info-label">📏 Distance Remaining</div>
                 </div>
-            </div>
-            
-            <div class="nav-info" style="text-align: center; flex: 1;">
-                <div style="
-                    font-size: 2rem; 
-                    font-weight: bold; 
-                    color: #FFD700;
-                    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-                    margin-bottom: 5px;
-                " id="nav-time">
+            <div class="nav-info">
+                <div class="nav-info-value" id="nav-time">
                     ${currentRoute.selectedRoute.legs[0].duration.text}
                 </div>
-                <div style="color: rgba(255,255,255,0.8); font-size: 0.9rem; font-weight: 500;">
-                    ⏱️ Time Remaining
+                <div class="nav-info-label">⏱️ Time Remaining</div>
                 </div>
-            </div>
-            
-            <div class="nav-info" style="text-align: center; flex: 1;">
-                <div style="
-                    font-size: 2rem; 
-                    font-weight: bold; 
-                    color: #FF6B6B;
-                    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-                    margin-bottom: 5px;
-                " id="nav-speed">
+            <div class="nav-info">
+                <div class="nav-info-value" id="nav-speed">
                     -- km/h
                 </div>
-                <div style="color: rgba(255,255,255,0.8); font-size: 0.9rem; font-weight: 500;">
-                    🚗 Current Speed
+                <div class="nav-info-label">🚗 Current Speed</div>
                 </div>
-            </div>
-            
-            <div class="nav-actions" style="display: flex; gap: 10px; margin-left: 20px;">
-                <button onclick="recenterMap()" id="recenter-btn" style="
-                    background: linear-gradient(135deg, #2196F3, #1976D2);
-                    color: white;
-                    border: none;
-                    padding: 12px 20px;
-                    border-radius: 25px;
-                    cursor: pointer;
-                    font-weight: bold;
-                    font-size: 0.9rem;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    transition: all 0.3s ease;
-                    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-                ">
+            <div class="nav-actions">
+                <button onclick="recenterMap()" id="recenter-btn" class="nav-footer-btn">
                     <span style="font-size: 1.1em;">📍</span>
                     <span>Recenter</span>
                 </button>
             </div>
         </div>
+        <div class="nav-progress-container">
+            <div id="nav-progress-bar" class="nav-progress-bar"></div>
+        </div>
     `;
-    
     document.body.appendChild(footer);
-    
-    // Add hover effects
-    const buttons = footer.querySelectorAll('button');
-    buttons.forEach(btn => {
-        btn.addEventListener('mouseenter', () => {
-            btn.style.transform = 'translateY(-2px)';
-            btn.style.boxShadow = '0 6px 12px rgba(0,0,0,0.3)';
-        });
-        btn.addEventListener('mouseleave', () => {
-            btn.style.transform = 'translateY(0)';
-            btn.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
-        });
-    });
 }
 
 // Exit navigation mode
 function exitNavigation() {
     navigationMode = false;
-    
     // Stop location tracking
     stopLocationTracking();
-    
     // Remove navigation footer
     const navFooter = document.getElementById('navigation-footer');
     if (navFooter) {
         navFooter.remove();
     }
-    
     // Restore main content
     document.getElementById('controls').style.display = 'block';
     document.getElementById('routeInfo').style.display = 'block';
     document.getElementById('reported-issues-section').style.display = 'block';
     document.querySelector('footer').style.display = 'block';
-    
     // Restore map container
     const mapContainer = document.getElementById('map-container');
-    mapContainer.style.position = 'relative';
-    mapContainer.style.top = 'auto';
-    mapContainer.style.left = 'auto';
-    mapContainer.style.right = 'auto';
-    mapContainer.style.bottom = 'auto';
-    mapContainer.style.zIndex = 'auto';
-    mapContainer.style.borderRadius = '8px';
-    
+    mapContainer.classList.remove('nav-fullscreen');
     // Restore header
     const header = document.querySelector('header');
     header.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 18px;">
             <div>
                 <h1>Kigali Traffic Navigation System</h1>
                 <p>Find the best route with real-time traffic updates</p>
             </div>
             <nav style="display: flex; gap: 15px; align-items: center;">
-                <a href="issue-report.html" style="
-                    color: white;
-                    text-decoration: none;
-                    padding: 10px 20px;
-                    background: rgba(255,255,255,0.2);
-                    border-radius: 25px;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    transition: all 0.3s ease;
-                    border: 1px solid rgba(255,255,255,0.3);
-                ">
+                <a href="issue-report.html">
                     <span style="font-size: 1.2em;">⚠️</span>
                     Report an Issue
-                </a>
-                <a href="admin.html" style="
-                    color: white;
-                    text-decoration: none;
-                    padding: 10px 20px;
-                    background: rgba(255,255,255,0.2);
-                    border-radius: 25px;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    transition: all 0.3s ease;
-                    border: 1px solid rgba(255,255,255,0.3);
-                ">
-                    <span style="font-size: 1.2em;">⚙️</span>
-                    Admin
                 </a>
             </nav>
         </div>
     `;
-    
     // Trigger map resize
     google.maps.event.trigger(map, 'resize');
 }
@@ -918,7 +770,8 @@ function toggleIssuesView() {
     const issuesContainer = document.getElementById('issues-container');
     const viewBtn = document.getElementById('view-issues-btn');
     
-    if (issuesContainer.style.display === 'none') {
+    // Use computed style to check visibility
+    if (window.getComputedStyle(issuesContainer).display === 'none') {
         issuesContainer.style.display = 'block';
         viewBtn.innerHTML = '<span style="font-size: 1.2em;"></span> Hide Issues';
         loadIssues();
