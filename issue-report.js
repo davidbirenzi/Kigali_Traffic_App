@@ -4,6 +4,21 @@ let marker;
 let selectedLocation = null;
 let currentLocation = null;
 
+// Cleanup function for page unload
+function cleanupMap() {
+    if (map) {
+        google.maps.event.clearInstanceListeners(map);
+        map = null;
+    }
+    if (marker) {
+        marker.setMap(null);
+        marker = null;
+    }
+}
+
+// Add cleanup on page unload
+window.addEventListener('beforeunload', cleanupMap);
+
 // Custom popup function
 function showPopup(title, message, type = 'info') {
     const popupOverlay = document.getElementById('popup-overlay');
@@ -53,8 +68,8 @@ function showPopup(title, message, type = 'info') {
     });
 }
 
-// Initialize Google Maps
-function initMap() {
+// Initialize Google Maps for Issue Report
+function initIssueMap() {
     // Default center (Kigali, Rwanda)
     const kigali = { lat: -1.9441, lng: 30.0619 };
     
