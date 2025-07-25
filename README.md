@@ -76,3 +76,80 @@ Kigali_Traffic_App/
 
 
 God Bless You!
+
+## **Diagnosis**
+
+### **What’s Happening?**
+- When you submit an issue on `issue-report.html` and then return to `index.html`, the map sometimes does not appear.
+- The map on `index.html` is initialized by the `initMap` function, which is set as the callback in the Google Maps script tag.
+- Both `index.html` and `issue-report.html` load the Google Maps API script, but with different parameters:
+  - `index.html` uses:  
+    `<script src="https://maps.googleapis.com/maps/api/js?key=...&libraries=places&callback=initMap" async defer></script>`
+  - `issue-report.html` uses:  
+    `<script src="https://maps.googleapis.com/maps/api/js?key=...&libraries=places"></script>`
+
+### **Why Does the Map Disappear?**
+- **Netlify and Single Page App (SPA) Navigation:**  
+  If you use Netlify’s default SPA redirect or browser navigation (back/forward), the Google Maps API script may not reload or the callback may not fire as expected, especially if the script is already present in the browser cache.
+- **Callback Not Triggered:**  
+  If you return to `index.html` via browser navigation (not a full reload), the `initMap` callback may not be called, so the map is not initialized.
+- **Session/Storage:**  
+  There is no evidence that submitting an issue or storage logic is breaking the map. The authentication logic is robust and does not clear the session on issue submission.
+
+## **How to Fix**
+
+### **Best Practice**
+- **Always use the `callback=initMap` parameter** in the Google Maps script tag on every page that loads the map.
+- **Remove duplicate script tags** or ensure the script is loaded only once per page load.
+- **Force a full reload** when navigating back to the home page after submitting an issue.
+
+### **Recommended Fixes**
+
+#### **1. Update `issue-report.html` to use the callback**
+Change:
+```html
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+```
+To:
+```html
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initMap" async defer></script>
+```
+This ensures the map always initializes correctly.
+
+#### **2. Force a Full Reload When Returning Home**
+In `issue-report.html`, change the "Back to Home" link:
+```html
+<a href="index.html" class="back-btn">← Back to Home</a>
+```
+to:
+```html
+<a href="index.html" class="back-btn" onclick="window.location.href='index.html';">← Back to Home</a>
+```
+Or, better, add this script at the bottom of `issue-report.html`:
+```js
+document.querySelector('.back-btn').addEventListener('click', function(e) {
+  e.preventDefault();
+  window.location.href = 'index.html';
+});
+```
+This ensures a full reload, not just browser navigation.
+
+#### **3. (Optional) Remove Duplicate Google Maps Script Loads**
+If you ever use a SPA router or AJAX navigation, ensure you do not load the Google Maps script more than once.
+
+---
+
+## **Summary Table**
+
+| Page              | Google Maps Script Tag (should be)                                      |
+|-------------------|-------------------------------------------------------------------------|
+| index.html        | `<script src="...&callback=initMap" async defer></script>`              |
+| issue-report.html | `<script src="...&callback=initMap" async defer></script>`              |
+
+---
+
+## **Next Steps**
+1. Update the Google Maps script tag in `issue-report.html` to include the `callback=initMap` and `async defer`.
+2. Ensure navigation back to `index.html` triggers a full page reload.
+
+Would you like me to make these changes for you?

@@ -171,6 +171,16 @@ function createIssueElement(issue) {
         `;
     }
     
+    let reporterEmail = issue.reporter;
+    try {
+        if (typeof reporterEmail === 'string' && reporterEmail.startsWith('{')) {
+            const parsed = JSON.parse(reporterEmail);
+            if (parsed.email) reporterEmail = parsed.email;
+        } else if (typeof reporterEmail === 'object' && reporterEmail.email) {
+            reporterEmail = reporterEmail.email;
+        }
+    } catch (e) {}
+    
     issueDiv.innerHTML = `
         <div class="issue-header">
             <div class="issue-title">
@@ -187,7 +197,7 @@ function createIssueElement(issue) {
         </div>
         
         <div class="issue-meta">
-            <span>👤 Reported by: ${issue.reporter}</span>
+            <span>👤 Reported by: ${reporterEmail}</span>
             <span>🕒 ${formattedDate}</span>
         </div>
         
