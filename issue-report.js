@@ -4,21 +4,6 @@ let marker;
 let selectedLocation = null;
 let currentLocation = null;
 
-// Cleanup function for page unload
-function cleanupMap() {
-    if (map) {
-        google.maps.event.clearInstanceListeners(map);
-        map = null;
-    }
-    if (marker) {
-        marker.setMap(null);
-        marker = null;
-    }
-}
-
-// Add cleanup on page unload
-window.addEventListener('beforeunload', cleanupMap);
-
 // Custom popup function
 function showPopup(title, message, type = 'info') {
     const popupOverlay = document.getElementById('popup-overlay');
@@ -68,8 +53,8 @@ function showPopup(title, message, type = 'info') {
     });
 }
 
-// Initialize Google Maps for Issue Report
-function initIssueMap() {
+// Initialize Google Maps
+function initMap() {
     // Default center (Kigali, Rwanda)
     const kigali = { lat: -1.9441, lng: 30.0619 };
     
@@ -294,4 +279,25 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('issue-form').dispatchEvent(new Event('submit'));
         }
     });
+});
+
+// Fallback map initialization - ensures map always renders
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if map is initialized after a short delay
+    setTimeout(() => {
+        const mapElement = document.getElementById('map');
+        if (mapElement && (!map || !map.getDiv)) {
+            console.log('Map not initialized, attempting to initialize...');
+            if (typeof google !== 'undefined' && google.maps) {
+                initMap();
+            } else {
+                // If Google Maps API is not loaded yet, wait a bit more
+                setTimeout(() => {
+                    if (typeof google !== 'undefined' && google.maps) {
+                        initMap();
+                    }
+                }, 1000);
+            }
+        }
+    }, 500);
 }); 

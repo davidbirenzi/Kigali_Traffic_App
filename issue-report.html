@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Report Traffic Issue - Kigali Traffic System</title>
     <link rel="stylesheet" href="issue-report.css">
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD3QYtOU1P5Dkf4nNFfREDfTB-z99XWijQ&libraries=places&callback=initIssueMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD3QYtOU1P5Dkf4nNFfREDfTB-z99XWijQ&libraries=places&callback=initMap" async defer></script>
 </head>
 <body>
     <div class="container">
@@ -94,17 +94,7 @@
         if (backBtn) {
           backBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            // Clean up map resources before navigating
-            if (window.map) {
-              google.maps.event.clearInstanceListeners(window.map);
-              window.map = null;
-            }
-            if (window.marker) {
-              window.marker.setMap(null);
-              window.marker = null;
-            }
-            // Force a full page reload to ensure clean state
-            window.location.replace('index.html');
+            window.location.href = 'index.html';
           });
         }
       });

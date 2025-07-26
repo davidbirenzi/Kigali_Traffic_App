@@ -153,13 +153,10 @@
             border-radius: var(--radius);
             overflow: hidden;
             box-shadow: var(--shadow);
-            min-height: 480px;
         }
         #map {
             height: 100%;
             width: 100%;
-            min-height: 480px;
-            display: block;
         }
         #error {
             display: none;
@@ -661,20 +658,7 @@
         <p>© 2025 davidbirenzi | All rights reserved</p>
     </footer>
     <!-- Replace YOUR_API_KEY with your actual Google Maps API key -->
-    <script>
-        // Check if Google Maps API is already loaded
-        if (typeof google !== 'undefined' && google.maps) {
-            // API already loaded, initialize map directly
-            initMap();
-        } else {
-            // Load the API
-            const script = document.createElement('script');
-            script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyD3QYtOU1P5Dkf4nNFfREDfTB-z99XWijQ&libraries=places&callback=initMap';
-            script.async = true;
-            script.defer = true;
-            document.head.appendChild(script);
-        }
-    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD3QYtOU1P5Dkf4nNFfREDfTB-z99XWijQ&libraries=places&callback=initMap" async defer></script>
     <!-- Include the JavaScript file we created earlier -->
     <script src="script.js"></script>
     <script>

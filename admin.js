@@ -293,6 +293,11 @@ function logout() {
     }, 1500);
 }
 
+// Go to home function
+function goToHome() {
+    window.location.href = 'index.html';
+}
+
 // Initialize admin dashboard
 document.addEventListener('DOMContentLoaded', () => {
     if (!checkAdminAuth()) {

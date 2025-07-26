@@ -4,21 +4,8 @@ let directionsRenderer;
 let placesService;
 
 function initMap() {
-    // Check if map container exists
-    const mapContainer = document.getElementById('map');
-    if (!mapContainer) {
-        console.error('Map container not found');
-        return;
-    }
-
-    // Clean up any existing map instance
-    if (map) {
-        google.maps.event.clearInstanceListeners(map);
-        map = null;
-    }
-
     // Initialize the map centered on Kigali
-    map = new google.maps.Map(mapContainer, {
+    map = new google.maps.Map(document.getElementById('map'), {
         center: { lat: -1.9441, lng: 30.0619 },
         zoom: 13
     });
@@ -32,15 +19,6 @@ function initMap() {
     // Initialize autocomplete for input fields
     initializeAutocomplete('start');
     initializeAutocomplete('end');
-
-    // Trigger a resize event to ensure proper rendering
-    setTimeout(() => {
-        if (map && google.maps) {
-            google.maps.event.trigger(map, 'resize');
-            // Ensure map is centered properly
-            map.setCenter({ lat: -1.9441, lng: 30.0619 });
-        }
-    }, 100);
 }
 
 function initializeAutocomplete(inputId) {
@@ -959,20 +937,25 @@ document.addEventListener('DOMContentLoaded', () => {
     if (reportLink) {
         reportLink.href = 'issue-report.html';
     }
-
-    // Fallback map initialization if Google Maps API is already loaded
-    if (typeof google !== 'undefined' && google.maps && !map) {
-        setTimeout(() => {
-            initMap();
-        }, 500);
-    }
 });
 
-// Global fallback for map initialization
-window.initMapFallback = function() {
-    if (typeof google !== 'undefined' && google.maps && document.getElementById('map')) {
-        setTimeout(() => {
-            initMap();
-        }, 100);
-    }
-};
+// Fallback map initialization - ensures map always renders
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if map is initialized after a short delay
+    setTimeout(() => {
+        const mapElement = document.getElementById('map');
+        if (mapElement && (!map || !map.getDiv)) {
+            console.log('Map not initialized, attempting to initialize...');
+            if (typeof google !== 'undefined' && google.maps) {
+                initMap();
+            } else {
+                // If Google Maps API is not loaded yet, wait a bit more
+                setTimeout(() => {
+                    if (typeof google !== 'undefined' && google.maps) {
+                        initMap();
+                    }
+                }, 1000);
+            }
+        }
+    }, 500);
+});
